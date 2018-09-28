@@ -48,6 +48,7 @@ class AdminUsersController extends Controller
     {
         //
         $input = $request->all();
+
         if($file = $request->file('photo_id')){
 
             $name = time() . $file->getClientOriginalName();
@@ -58,12 +59,11 @@ class AdminUsersController extends Controller
 
             $input['photo_id'] = $photo->id;
 
-
         }
-        $input['password'] = bcrypt($request->password);
+       // $input['password'] = bcrypt($request->password);
         user::create($input);
 
-        //return redirect('/admin/users');
+        return redirect('/admin/users');
 
 
         //return $request->all();
