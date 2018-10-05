@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCommentRepliesTable extends Migration
 {
@@ -15,7 +16,7 @@ class CreateCommentRepliesTable extends Migration
         Schema::create('comment_replies', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('comment_id')->unsigned()->index();;
-            $table->integer('is-active')->default(0);
+            $table->integer('is_active')->default(0);
             $table->string('author');
             $table->string('photo');
             $table->string('email');
