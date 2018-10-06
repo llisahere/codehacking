@@ -82,8 +82,10 @@ class ComposerStaticInitf080959b00634f372a53f3bc58018025
         ),
         'C' => 
         array (
+            'Cviebrock\\EloquentSluggable\\' => 28,
             'Cron\\' => 5,
             'Collective\\Html\\' => 16,
+            'Cocur\\Slugify\\' => 14,
             'ClassPreloader\\' => 15,
         ),
         'A' => 
@@ -215,6 +217,10 @@ class ComposerStaticInitf080959b00634f372a53f3bc58018025
         array (
             0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Common/Inflector',
         ),
+        'Cviebrock\\EloquentSluggable\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cviebrock/eloquent-sluggable/src',
+        ),
         'Cron\\' => 
         array (
             0 => __DIR__ . '/..' . '/mtdowling/cron-expression/src/Cron',
@@ -222,6 +228,10 @@ class ComposerStaticInitf080959b00634f372a53f3bc58018025
         'Collective\\Html\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravelcollective/html/src',
+        ),
+        'Cocur\\Slugify\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cocur/slugify/src',
         ),
         'ClassPreloader\\' => 
         array (

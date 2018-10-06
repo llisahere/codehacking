@@ -3,11 +3,12 @@
 
 @section('content')
 
-    <h1>Replies</h1>
+
 
     @if(count($replies) > 0)
-
+        <h1>Replies</h1>
         <table class="table">
+
             <thead>
             <tr>
                 <th>Id</th>
