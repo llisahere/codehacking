@@ -7,7 +7,9 @@
     "test": "tests"
   },
   "dependencies": {
+    "cryptiles": "^4.1.2",
     "gulp": "^3.9.1",
+    "hoek": "^5.0.4",
     "laravel-elixir": "^6.0.0-18"
   },
   "devDependencies": {},
