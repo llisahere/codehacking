@@ -72,9 +72,11 @@ Route::get('/post/{id}', ['as'=>'home.post','uses'=>'AdminPostsController@post']
         'index'=>'admin.media.index',
         'create'=>'admin.media.create',
         'store'=>'admin.media.store',
+        'edit'=>'admin.media.edit',
         'destroy'=>'admin.media.destroy',
 
     ]]);
+Route::delete('admin/delete/media', 'AdminMediasController@deleteMedia');
 
     Route::resource('admin/comments', 'PostCommentsController', ['names'=>[
         'index'=>'admin.comments.index',
