@@ -7,6 +7,9 @@ Easy creation of slugs for your Eloquent models in Laravel 5.
 [![Latest Stable Version](https://poser.pugx.org/cviebrock/eloquent-sluggable/v/stable?format=flat)](https://packagist.org/packages/cviebrock/eloquent-sluggable)
 [![Latest Unstable Version](https://poser.pugx.org/cviebrock/eloquent-sluggable/v/unstable?format=flat)](https://packagist.org/packages/cviebrock/eloquent-sluggable)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/cviebrock/eloquent-sluggable/badges/quality-score.png?format=flat)](https://scrutinizer-ci.com/g/cviebrock/eloquent-sluggable)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/0b966e13-6a6a-4d17-bcea-61037f04cfe7/mini.png)](https://insight.sensiolabs.com/projects/0b966e13-6a6a-4d17-bcea-61037f04cfe7)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+
 
 * [Background: What is a slug](#background-what-is-a-slug)
 * [Installation](#installation)
@@ -87,9 +90,13 @@ automatically, with minimal configuration.
 > |:---------------:|:-----------------:|
 > |       4.x       |        2.x        |
 > |     5.1, 5.2    |        4.0        |
-> | 5.1*, 5.2*, 5.3 |        4.1        |
+> | 5.1†, 5.2†, 5.3 |        4.1        |
+> |       5.4       |      ~4.2.1‡      |
 >
-> \* The 4.1 version _should_ work with Laravel 5.1 and 5.2, but might not in the future.
+> † The 4.1 version _should_ work with Laravel 5.1 and 5.2, but might not in the future.
+>
+> ‡ The 4.2.0 version was short-lived and had some issues; please upgrade to the latest
+> 4.2.* version.
 >
 > Also note that different versions of the package have different configuration
 > settings.  See [UPGRADING.md](UPGRADING.md) for details.
@@ -101,7 +108,7 @@ automatically, with minimal configuration.
 First, you'll need to install the package via Composer:
 
 ```shell
-$ composer require cviebrock/eloquent-sluggable:^4.1
+$ composer require cviebrock/eloquent-sluggable
 ```
 
 Then, update `config/app.php` by adding an entry for the service provider.
@@ -195,7 +202,19 @@ $newPost = $post->replicate();
 // $newPost->slug is "my-awesome-blog-post-1"
 ```
 
+Note that empty strings, non-strings or other "odd" source values will result in different slugs:
 
+| Source Value | Resulting Slug        |
+|--------------|-----------------------|
+| string       | string                |
+| empty string | _no slug will be set_ |
+| `null`       | _no slug will be set_ |
+| `0`          | `"0"`                 |
+| `1`          | `"1"`                 |
+| `false`      | `"0"`                 |
+| `true`       | `"1"`                 |
+
+(The above values would be subject to any unique or other checks as well.)
 
 ## The SlugService Class 
 
