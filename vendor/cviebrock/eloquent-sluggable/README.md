@@ -1,6 +1,9 @@
 # Eloquent-Sluggable
 
-Easy creation of slugs for your Eloquent models in Laravel 5.
+Easy creation of slugs for your Eloquent models in Laravel.
+
+> **NOTE**: These instructions are for Laravel 5.6.  If you are using Laravel 5.5, please
+> see the [previous version docs](https://github.com/cviebrock/eloquent-sluggable/tree/4.4).
 
 [![Build Status](https://travis-ci.org/cviebrock/eloquent-sluggable.svg?branch=master&format=flat)](https://travis-ci.org/cviebrock/eloquent-sluggable)
 [![Total Downloads](https://poser.pugx.org/cviebrock/eloquent-sluggable/downloads?format=flat)](https://packagist.org/packages/cviebrock/eloquent-sluggable)
@@ -19,7 +22,8 @@ Easy creation of slugs for your Eloquent models in Laravel 5.
 * [Events](#events)
 * [Configuration](#configuration)
     * [includeTrashed](#includetrashed)
-    * [maxLength](#maxLength)
+    * [maxLength](#maxlength)
+    * [maxLengthKeepWords](#maxlengthkeepwords)
     * [method](#method)
     * [onUpdate](#onupdate)
     * [reserved](#reserved)
@@ -44,7 +48,7 @@ a string usually involves converting it to one case, and removing any non-URL-fr
 characters (spaces, accented letters, ampersands, etc.). The resulting string can 
 then be used as an identifier for a particular resource.
 
-For example, I have a blog with posts. I could refer to each post via the ID:
+For example, if you have a blog with posts, you could refer to each post via the ID:
 
     http://example.com/post/1
     http://example.com/post/2
@@ -67,15 +71,15 @@ A URL like that will make users happier (it's readable, easier to type, etc.).
 For more information, you might want to read 
 [this](http://en.wikipedia.org/wiki/Slug_(web_publishing)#Slug) description on Wikipedia.
 
-Slugs tend to be unique as well. So if I wrote another post with the same title, 
-I'd want to distinguish between them somehow, typically with an incremental counter 
+Slugs tend to be unique as well. So if you write another post with the same title, 
+you'd want to distinguish between them somehow, typically with an incremental counter 
 added to the end of the slug:
 
     http://example.com/post/my-dinner-with-andre-francois
     http://example.com/post/my-dinner-with-andre-francois-1
     http://example.com/post/my-dinner-with-andre-francois-2
 
-This keeps URLs unique.
+This keeps the URLs unique.
 
 The **Eloquent-Sluggable** package for Laravel 5 aims to handle all of this for you 
 automatically, with minimal configuration.
@@ -86,45 +90,32 @@ automatically, with minimal configuration.
 > **NOTE**: Depending on your version of Laravel, you should install a different
 > version of the package:
 > 
-> | Laravel Version | Sluggable Version |
-> |:---------------:|:-----------------:|
-> |       4.x       |        2.x        |
-> |     5.1, 5.2    |        4.0        |
-> | 5.1†, 5.2†, 5.3 |        4.1        |
-> |       5.4       |      ~4.2.1‡      |
+> | Laravel Version | Package Version |
+> |:---------------:|:---------------:|
+> |       5.6       |      4.5.*      |
+> |       5.5       |   4.3.*|4.4.*   |
+> |       5.4       |      4.2.*      |
 >
-> † The 4.1 version _should_ work with Laravel 5.1 and 5.2, but might not in the future.
->
-> ‡ The 4.2.0 version was short-lived and had some issues; please upgrade to the latest
-> 4.2.* version.
->
-> Also note that different versions of the package have different configuration
-> settings.  See [UPGRADING.md](UPGRADING.md) for details.
-> 
-> Finally, the latest version of the package uses traits and few other "new" PHP
-> features, so you should be running PHP 5.6 or higher.  HHVM is not supported.
+> Older versions of Laravel can use older versions of the package, although they 
+> are no longer supported or maintained.  See [CHANGELOG.md](CHANGELOG.md) and
+> [UPGRADING.md](UPGRADING.md) for specifics, and be sure that you are reading 
+> the correct README.md for your version (Github displays the version in 
+> the _master_ branch by default, which might not be what you want).
 
 
-First, you'll need to install the package via Composer:
+1. Install the package via Composer:
 
-```shell
-$ composer require cviebrock/eloquent-sluggable
-```
+    ```sh
+    $ composer require cviebrock/eloquent-sluggable:^4.5
+    ```
 
-Then, update `config/app.php` by adding an entry for the service provider.
+    The package will automatically register itself with Laravel 5.5.
 
-```php
-'providers' => [
-    // ...
-    Cviebrock\EloquentSluggable\ServiceProvider::class,
-];
-```
+2. Optionally, publish the configuration file if you want to change any defaults:
 
-Finally, from the command line again, publish the default configuration file:
-
-```shell
-php artisan vendor:publish --provider="Cviebrock\EloquentSluggable\ServiceProvider"
-```
+    ```sh
+    php artisan vendor:publish --provider="Cviebrock\EloquentSluggable\ServiceProvider"
+    ```
 
 
 ## Updating your Eloquent Models
@@ -153,16 +144,13 @@ class Post extends Model
             ]
         ];
     }
-
 }
 ```
 
 Of course, your model and database will need a column in which to store the slug. 
-You will need to add this manually via a migration.
-
-(Previous versions of the package included an `artisan sluggable:table` command to
-assist you.  This has been deprecated because it's easy enough to generate your own
-migrations with `artisan make:migration`).
+You can use `slug` or any other appropriate name you want; your configuration array
+will determine to which field the data will be stored.  You will need to add the 
+column manually via your own migration.
 
 That's it ... your model is now "sluggable"!
 
@@ -187,8 +175,7 @@ echo $post->slug;
 ```
 
 Also note that if you are replicating your models using Eloquent's `replicate()` method, 
-the package will automatically re-slug the model afterwards to ensure uniqueness (in
-previous versions of the package, you needed to do this manually).
+the package will automatically re-slug the model afterwards to ensure uniqueness.
 
 ```php
 $post = new Post([
@@ -218,10 +205,10 @@ Note that empty strings, non-strings or other "odd" source values will result in
 
 ## The SlugService Class 
 
-Unlike previous versions of the package, all the logic to generate slugs is handled
+All the logic to generate slugs is handled
 by the `\Cviebrock\EloquentSluggable\Services\SlugService` class.
 
-Generally, you won't need to access this class directly, although there is one 
+Generally, you don't need to access this class directly, although there is one 
 static method that can be used to generate a slug for a given string without actually
 creating or saving an associated model.
 
@@ -284,28 +271,30 @@ Configuration was designed to be as flexible as possible. You can set up default
 for all of your Eloquent models, and then override those settings for individual 
 models.
 
-By default, global configuration can be set in the `app/config/sluggable.php` file. 
-If a configuration isn't set, then the package defaults from 
-`vendor/cviebrock/eloquent-sluggable/resources/config/sluggable.php` are used. 
+By default, global configuration is set in the `app/config/sluggable.php` file. 
+If a configuration isn't set, then the package defaults are used. 
 Here is an example configuration, with all the default settings shown:
 
 ```php
 return [
-    'source'          => null,
-    'maxLength'       => null,
-    'method'          => null,
-    'separator'       => '-',
-    'unique'          => true,
-    'uniqueSuffix'    => null,
-    'includeTrashed'  => false,
-    'reserved'        => null,
+    'source'             => null,
+    'maxLength'          => null,
+    'maxLengthKeepWords' => true,
+    'method'             => null,
+    'separator'          => '-',
+    'unique'             => true,
+    'uniqueSuffix'       => null,
+    'includeTrashed'     => false,
+    'reserved'           => null,
+    'onUpdate'           => false,
 ];
 ```
 
 For individual models, configuration is handled in the `sluggable()` method that you
 need to implement.  That method should return an indexed array where the keys represent
 the fields where the slug value is stored and the values are the configuration for that
-field.
+field.  This means you can create multiple slugs for the same model, based on different
+source strings and with different configuration options.
 
 ```php
 public function sluggable()
@@ -315,35 +304,18 @@ public function sluggable()
             'source' => 'title'
         ],
         'author-slug' => [
-            'source' => ['author.firstname', 'author.lastname']
-        ],
-    ];
-}
-```
-  
-Unlike previous versions of the package, this now means you can now create 
-multiple slugs for the same model, based on different source strings and with
-different configuration options.  For example:
-
-```php
-public function sluggable()
-{
-    return [
-        'title-slug' => [
-            'source' => 'title'
-        ],
-        'author-slug' => [
-            'source' => ['author.firstname', 'author.lastname'],
+            'source' => ['author.lastname', 'author.firstname'],
             'separator' => '_'
         ],
     ];
 }
 ```
+  
 
 ### source
 
 This is the field or array of fields from which to build the slug. Each `$model->field` 
-is concatenated (with space separation) to build the sluggable string. This can be 
+is concatenated (with space separation) to build the sluggable string. These can be 
 model attributes (i.e. fields in the database), relationship attributes, or custom getters.
  
 To reference fields from related models, use dot-notation. For example, the 
@@ -412,17 +384,29 @@ less than the length of your database field. The reason why is that the class wi
 append "-1", "-2", "-3", etc., to subsequent models in order to maintain uniqueness. 
 These incremental extensions aren't included in part of the `maxLength` calculation.
 
+### maxLengthKeepWords
+
+If you are truncating your slugs with the `maxLength` setting, than you probably
+want to ensure that your slugs don't get truncated in the middle of a word.  For
+example, if your source string is "My First Post", and your `maxLength` is 10,
+the generated slug would end up being "my-first-p", which isn't ideal.
+
+By default, the `maxLengthKeepWords` value is set to true which would trim the
+partial words off the end of the slug, resulting in "my-first" instead of "my-first-p".
+
+If you want to keep partial words, then set this configuration to false.
+
 ### method
 
 Defines the method used to turn the sluggable string into a slug. There are three 
 possible options for this configuration:
 
-1. When `method` is null (the default setting), the package uses 
-[Cocur/Slugify](https://github.com/cocur/slugify) to create the slug.
+1. When `method` is null (the default setting), the package uses the default slugging
+engine -- [cocur/slugify](https://github.com/cocur/slugify) -- to create the slug.
 
 2. When `method` is a callable, then that function or class method is used. The function/method 
 should expect two parameters: the string to process, and a separator string. 
-For example, to duplicate the default behaviour, you could do:
+For example, to use Laravel's `Str::slug`, you could do:
 
 ```php
 'method' => ['Illuminate\\Support\\Str', 'slug'],
@@ -529,17 +513,11 @@ This will use all the default options from `app/config/sluggable.php`, use the m
 ## Extending Sluggable
 
 Sometimes the configuration options aren't sufficient for complex needs (e.g. maybe 
-the uniqueness test needs to take other attributes into account, or maybe you need 
-to make two slugs for the same model).
+the uniqueness test needs to take other attributes into account).
 
-In instances like these, we try to offer hooks into the slugging workflow where you
+In instances like these, the package offers hooks into the slugging workflow where you
 can use your own functions, either on a per-model basis, or in your own trait that extends 
 the package's trait.
-
-> **NOTE:** Previously, these hooks were usually accessed by overloading methods on your model.
-However, because the package now uses the `SlugService` class to do the heavy-lifting,
-you need to either use entry points we've already provided, or extend `SlugService`
-class directly.
 
 ### customizeSlugEngine
 
@@ -589,7 +567,7 @@ if a given slug is unique.  The arguments passed to the scope are:
 * `$slug` -- the "base" slug (before any unique suffixes are applied)
 
 Feel free to use these values anyway you like in your query scope.  As an example, look at 
-`tests/Models/PostWithUniqueSlugConstraints.php` where we generate a slug for a post from it's title, but
+`tests/Models/PostWithUniqueSlugConstraints.php` where the slug is generated for a post from it's title, but
 the slug is scoped to the author.  So Bob can have a post with the same title as Pam's post, but both
 will have the same slug.
 
@@ -600,19 +578,18 @@ will have the same slug.
  * Query scope for finding "similar" slugs, used to determine uniqueness.
  *
  * @param \Illuminate\Database\Eloquent\Builder $query
- * @param \Illuminate\Database\Eloquent\Model $model
  * @param string $attribute
  * @param array $config
  * @param string $slug
  * @return \Illuminate\Database\Eloquent\Builder
  */
-public function scopeFindSimilarSlugs(Builder $query, Model $model, $attribute, $config, $slug)
+public function scopeFindSimilarSlugs(Builder $query, $attribute, $config, $slug)
 {
     ...
 }
 ```
 
-This is the default scope for finding "similar" slugs for a model.  Basically, we look for existing
+This is the default scope for finding "similar" slugs for a model.  Basically, the package looks for existing
 slugs that are the same as the `$slug` argument, or that start with `$slug` plus the separator string.
 The resulting collection is what is passed to the `uniqueSuffix` handler.
 
@@ -623,11 +600,8 @@ However, you are free to overload it in your models.
 
 ## SluggableScopeHelpers Trait
 
-Earlier versions of the package included some helper functions for working with models and their slugs.
-Because you can now have more than one slug per model, this functionality has been refactored into a
-separate trait you can use in your application.
-
-By adding the `SluggableScopeHelpers` trait to your model, you can then do things such as:
+Adding the optional `SluggableScopeHelpers` trait to your model allows you to work with models
+and their slugs.  For example:
 
 ```php
 $post = Post::whereSlug($slugString)->get();
@@ -637,6 +611,7 @@ $post = Post::findBySlug($slugString);
 $post = Post::findBySlugOrFail($slugString);
 ```
 
+Because models can have more than one slug, this requires a bit more configuration.
 See [SCOPE-HELPERS.md](SCOPE-HELPERS.md) for all the details.
 
 

@@ -15,9 +15,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'HomeController@index');
 
 Auth::routes();
 
@@ -32,10 +30,7 @@ Route::get('/logout', 'Auth\LoginController@logout');
 //
 Route::group(['middleware'=>'admin'], function(){
 
-    Route::get('/admin', function(){
-
-        return view('admin.index');
-    });
+    Route::get('/admin', 'AdminController@index');
 
     Route::resource('admin/users', 'AdminUsersController', ['names'=>[
         'index'=>'admin.users.index',
@@ -47,7 +42,7 @@ Route::group(['middleware'=>'admin'], function(){
         'destroy'=>'admin.users.destroy',
 
     ]]);
-Route::get('/post/{id}', ['as'=>'home.post','uses'=>'AdminPostsController@post']);
+Route::get('/post/{id}', ['as'=>'home.post','uses'=>'HomeController@post']);
 
     Route::resource('admin/posts', 'AdminPostsController', ['names'=>[
         'index'=>'admin.posts.index',

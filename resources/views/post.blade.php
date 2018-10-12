@@ -1,7 +1,14 @@
-@extends('layouts.blog-post');
+@extends('layouts.blog-home');
 
 
 @section('content')
+
+    <div class="row">
+
+     <div class="col-md-8">
+
+
+
     <!-- Blog Post -->
 
     <!-- Title -->
@@ -9,7 +16,7 @@
 
     <!-- Author -->
     <p class="lead">
-        by <a href="#">{{$post->user->name}}</a>
+        by {{$post->user->name}}
     </p>
 
     <hr>
@@ -29,11 +36,7 @@
 
     <hr>
 
-@if(Session::has('comment_message'))
 
-     {{session('comment_message')}}
-
-@endif
     <!-- Blog Comments -->
 
 @if(Auth::check())
@@ -126,7 +129,11 @@
     @endforeach
 
 @endif
+    </div><!--col-md-8-->
 
+@include('includes.front_sidebar')
+
+    </div><!--row-->
   @stop
 
 @section('scripts')
